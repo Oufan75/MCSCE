@@ -182,7 +182,14 @@ class Structure:
 
         return N_term_indicator, C_term_indicator
 
-
+    @property
+    def residue_IDs(self):
+        #exact residue number from all chains
+        resid = [self.res_nums[0]]  # Start with the first element
+        for i in range(1, len(self.res_nums)):
+            if self.res_nums[i] != self.res_nums[i - 1]:
+                resid.append(self.res_nums[i])
+        return resid
 
     @property
     def consecutive_residues(self):
@@ -481,7 +488,7 @@ class Structure:
         return missing_atoms
         
 
-    def remove_side_chains(self, retain_idxs=[]):
+    def remove_side_chains(self, retain_idxs={}):
         """
         Create a copy of the current structure that removed all atoms beyond CB to be regrown by the MCSCE algorithm, except ones defined in resids to be retained.
         """
@@ -489,8 +496,10 @@ class Structure:
         retained_atoms_filter = np.array([atom in backbone_atoms for atom in copied_structure.data_array[:, col_name]])
         extra_pro_H_filter = (copied_structure.data_array[:, col_name] == 'H') & (copied_structure.data_array[:, col_resName] == 'PRO')
         if len(retain_idxs) > 0:
-            for resid in retain_idxs:
-                retained_atoms_filter = retained_atoms_filter | (copied_structure.data_array[:, col_resSeq] == str(resid))
+            for chain_id, res_ids in retain_idxs.items():
+                for resid in res_ids:
+                    retained_atoms_filter = retained_atoms_filter | np.logical_and(copied_structure.data_array[:, col_resSeq] == str(resid), \
+                        copied_structure.data_array[:, col_chainID] == chain_id)
         retained_atoms_filter = retained_atoms_filter & (~extra_pro_H_filter)
         copied_structure._data_array = copied_structure.data_array[retained_atoms_filter]
         return copied_structure #, None if np.all(retained_atoms_filter) else retained_atoms_filter

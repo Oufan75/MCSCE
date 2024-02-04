@@ -2581,7 +2581,7 @@
     <Residue name="NPRO">
       <Atom charge="-0.202" name="N" type="protein-N3"/>
       <Atom charge="0.312" name="H2" type="protein-H"/>
-      <Atom charge="0.312" name="H3" type="protein-H"/>
+      <Atom charge="0.312" name="H1" type="protein-H"/>
       <Atom charge="-0.012" name="CD" type="protein-CT"/>
       <Atom charge="0.1" name="HD2" type="protein-HP"/>
       <Atom charge="0.1" name="HD3" type="protein-HP"/>
@@ -2596,7 +2596,7 @@
       <Atom charge="0.526" name="C" type="protein-C"/>
       <Atom charge="-0.5" name="O" type="protein-O"/>
       <Bond atomName1="N" atomName2="H2"/>
-      <Bond atomName1="N" atomName2="H3"/>
+      <Bond atomName1="N" atomName2="H1"/>
       <Bond atomName1="N" atomName2="CD"/>
       <Bond atomName1="N" atomName2="CA"/>
       <Bond atomName1="CD" atomName2="HD2"/>

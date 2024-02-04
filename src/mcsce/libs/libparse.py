@@ -435,7 +435,6 @@ def extract_ff_params_for_seq(
         # define protonation state in parameters
         if res_label.endswith('HIS'):
             res_label = res_label[:-3] + 'HIP'
-        #print(res)
         try:
             # force field atom type
             charge = force_field[res][atom_name]['charge']

@@ -3,7 +3,7 @@
 
 # SEP
 # Number of chi angles: 3
-# Number of additional chi angles: 2
+# Number of new chi angles: 2
 # Dependence: chi 1
 #
 #AA  Chi1-range    Prob chi2Val chi3Val chi2Sig chi3Sig
@@ -19,7 +19,7 @@ SEP  240  360   0.03125   277.6     180   32.18      10
 
 # TPO
 # Number of chi angles: 3
-# Number of additional chi angles: 2
+# Number of new chi angles: 2
 # Dependence: chi 1
 #
 #AA  Chi1-range    Prob chi2Val chi3Val chi2Sig chi3Sig
@@ -35,7 +35,7 @@ TPO  240  360   0.04545   298.1     180   15.35      10
 
 # PTR
 # Number of chi angles: 4
-# Number of additional chi angles: 2
+# Number of new chi angles: 2
 # Dependence: chi 1
 #
 #AA  Chi1-range    Prob chi3Val chi4Val chi3Sig chi4Sig
@@ -51,7 +51,7 @@ PTR  240  360      0.34   96.21     180   18.23      10
 
 # H2D
 # Number of chi angles: 3
-# Number of additional chi angles: 1
+# Number of new chi angles: 1
 # Dependence: chi 2
 #
 #AA  Chi1-range    Prob chi3Val chi3Sig
@@ -61,7 +61,7 @@ H2D  240  360         1     180      10
 
 # ABA
 # Number of chi angles: 1
-# Number of additional chi angles: 1
+# Number of new chi angles: 1
 # No Dependence
 #
 #AA      Prob chi1Val chi1Sig
@@ -71,7 +71,7 @@ ABA    0.1787 60.8882 32.0212
 
 # CSO
 # Number of chi angles: 2
-# Number of additional chi angles: 1
+# Number of new chi angles: 1
 # Dependence: chi 1
 #
 #AA  Chi1-range    Prob chi2Val chi2Sig
@@ -87,7 +87,7 @@ CSO  240  360    0.5725   285.4   22.18
 
 # CSD
 # Number of chi angles: 2
-# Number of additional chi angles: 1
+# Number of new chi angles: 1
 # Dependence: chi 1
 #
 #AA  Chi1-range    Prob chi2Val chi2Sig
@@ -103,7 +103,7 @@ CSD  240  360    0.4314   297.8   15.46
 
 # CME
 # Number of chi angles: 5
-# Number of additional chi angles: 4
+# Number of new chi angles: 4
 # Dependence: chi 1
 #
 #AA  Chi1-range    Prob chi2Val chi3Val chi4Val chi5Val chi2Sig chi3Sig
@@ -159,7 +159,7 @@ CME  240  360     0.186   260.6   272.6     180     300   257.7    51.5
 
 # OCS
 # Number of chi angles: 2
-# Number of additional chi angles: 1
+# Number of new chi angles: 1
 # Dependence: chi 1
 #
 #AA  Chi1-range    Prob chi2Val chi2Sig
@@ -169,7 +169,7 @@ OCS  240  360         1     180      10
 
 # KCX
 # Number of chi angles: 6
-# Number of additional chi angles: 2
+# Number of new chi angles: 2
 # Dependence: chi 4
 #
 #AA  Chi4-range    Prob chi5Val chi6Val chi5Sig chi6Sig
@@ -185,7 +185,7 @@ KCX  240  360       0.2   261.4       0   10.69      10
 
 # MLY
 # Number of chi angles: 5
-# Number of additional chi angles: 1
+# Number of new chi angles: 1
 # Dependence: chi 4
 #
 #AA  Chi4-range    Prob chi5Val chi5Sig
@@ -201,7 +201,7 @@ MLY  240  360   0.09524     296   26.45
 
 # M3L
 # Number of chi angles: 5
-# Number of additional chi angles: 1
+# Number of new chi angles: 1
 # Dependence: chi 4
 #
 #AA  Chi4-range    Prob chi5Val chi5Sig
@@ -211,7 +211,7 @@ M3L  240  360         1     180      10
 
 # HYP
 # Number of chi angles: 2
-# Number of additional chi angles: 2
+# Number of new chi angles: 2
 # No Dependence
 #
 #AA      Prob chi1Val chi2Val chi1Sig chi2Sig

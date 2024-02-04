@@ -90,7 +90,7 @@ def rotate_sidechain(res_type, tors):
     CBs_idx = 4 #CB, CB1. CB2
     CGs_idx = 5 #OG, CG, CG1, OG1, SG
     CDs_idx = 6 #SD, CD, CD1, ND1, OD1, CS, P 
-    CEs_idx = 7 #CE, NE, CE1, CE2, OE11, OE1, NE1
+    CEs_idx = 7 #CE, NE, CE1, CE2, OE11, OE1, NE1, O1P
     CZs_idx = 8 #CZ, NZ
     NH_idx = 9  #NH1, CH
     N_CA_CB_CG = [N_idx, CA_idx, CBs_idx, CGs_idx]
@@ -124,7 +124,7 @@ def rotate_sidechain(res_type, tors):
     # special ptm case 2+2
     if res_type in ['Y1P', 'PTR']:
         # chi3
-        CE_CZ_OH_P = [9, 10, 11, 12]
+        CE_CZ_OH_P = [8, 10, 11, 12] #defined by CE1
         ori_chi3 = calc_torsion_angles(template[CE_CZ_OH_P, :])[0] 
         unit_vector = (template[11] - template[10])/np.linalg.norm(template[11] - template[10])
         chi3_idx = [12, 13, 14, 15]

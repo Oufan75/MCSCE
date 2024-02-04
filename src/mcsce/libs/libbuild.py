@@ -154,7 +154,9 @@ def make_list_atom_labels(input_seq, atom_labels_dictionary):
     # for consistency with the forcefield
     # TODO: parametrize? multiple forcefields?
     for atom in first_residue_atoms:
-        if atom == 'H':
+        if atom == 'H' and input_seq.startswith("P"):
+            LE(('H1', 'H2'))
+        elif atom == 'H':
             LE(('H1', 'H2', 'H3'))
         else:
             labels.append(atom)
@@ -166,7 +168,6 @@ def make_list_atom_labels(input_seq, atom_labels_dictionary):
 
     assert Counter(labels)['N'] == len(input_seq)
     assert labels[-1] == 'OXT'
-    assert 'H1' in labels
     assert 'H2' in labels
     assert 'H3' in labels
     return labels

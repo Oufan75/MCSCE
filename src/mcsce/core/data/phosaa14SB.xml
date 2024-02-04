@@ -86,18 +86,17 @@
       <Atom name="CD" type="protein-CT" charge="-0.103173"/>
       <Atom name="HD2" type="protein-HC" charge="0.060401"/>
       <Atom name="HD3" type="protein-HC" charge="0.060401"/>
-      <Atom name="CE" type="protein-CT" charge="0.104008"/>
-      <Atom name="HE2" type="protein-HP" charge="0.119083"/>
-      <Atom name="HE3" type="protein-HP" charge="0.119083"/>
-      <Atom name="NZ" type="protein-N3" charge="-0.679719"/>
-      <Atom name="HZ2" type="protein-H" charge="0.464696"/>
-      <Atom name="HZ3" type="protein-H" charge="0.464696"/>
+      <Atom name="CE" type="protein-CT" charge="0.048126"/>
+      <Atom name="HE2" type="protein-HP" charge="0.063199"/>
+      <Atom name="HE3" type="protein-HP" charge="0.063199"/>
+      <Atom name="NZ" type="protein-N" charge="-0.679719"/>
+      <Atom name="HZ" type="protein-H" charge="0.264696"/>
       <Atom name="CH" type="protein-C" charge="0.558587"/>
       <Atom name="OAC" type="protein-O" charge="-0.38947"/>
       <Atom name="CH3" type="protein-CT" charge="-0.186878"/>
-      <Atom name="HC1" type="protein-HC" charge="0.117734"/>
-      <Atom name="HC3" type="protein-HC" charge="0.117734"/>
-      <Atom name="HC2" type="protein-HC" charge="0.117734"/>
+      <Atom name="HC1" type="protein-HC" charge="0.06185"/>
+      <Atom name="HC3" type="protein-HC" charge="0.06185"/>
+      <Atom name="HC2" type="protein-HC" charge="0.06185"/>
       <Atom name="C" type="protein-C" charge="0.644585"/>
       <Atom name="O" type="protein-O" charge="-0.594038"/>
       <Bond atomName1="N" atomName2="H"/>
@@ -117,8 +116,7 @@
       <Bond atomName1="CE" atomName2="HE2"/>
       <Bond atomName1="CE" atomName2="HE3"/>
       <Bond atomName1="CE" atomName2="NZ"/>
-      <Bond atomName1="NZ" atomName2="HZ2"/>
-      <Bond atomName1="NZ" atomName2="HZ3"/>
+      <Bond atomName1="NZ" atomName2="HZ"/>
       <Bond atomName1="NZ" atomName2="CH"/>
       <Bond atomName1="CH" atomName2="OAC"/>
       <Bond atomName1="CH" atomName2="CH3"/>

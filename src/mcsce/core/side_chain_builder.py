@@ -39,7 +39,7 @@ def choose_random(array):
             return idx
     return len(array) - 1
 
-def initialize_func_calc(efunc_creator, aa_seq=None, structure=None, retain_idxs=[]):
+def initialize_func_calc(efunc_creator, aa_seq=None, structure=None, retain_idxs={}):
     """
     Helper function for initializing the energy function calculators according to the specified
     amino acid sequence or a structure object.
@@ -83,14 +83,17 @@ def initialize_func_calc(efunc_creator, aa_seq=None, structure=None, retain_idxs
                                             structure.res_labels,
                                             n_terms,
                                             c_terms))
-                                            
-    for idx, resname, chain_id in tqdm(zip(range(len(aa_seq)), aa_seq, chain_ids), total=len(aa_seq)):
-        if idx + structure.res_nums[0] not in retain_idxs: 
+    residue_ids = structure.residue_IDs
+    assert len(residue_ids) == len(aa_seq)
+    for idx, resname, chain_id in tqdm(zip(residue_ids, aa_seq, chain_ids), total=len(aa_seq)):
+        flex_sidechain = False
+        if chain_id not in retain_idxs or (idx not in retain_idxs[chain_id]): 
+            flex_sidechain = True
             template = sidechain_templates[resname]
-            structure.add_side_chain(idx + structure.res_nums[0], template, chain_id)
+            structure.add_side_chain(idx, template, chain_id)
         sidechain_placeholders.append(deepcopy(structure))
         
-        if resname not in ["GLY", "ALA"] and idx + structure.res_nums[0] not in retain_idxs:
+        if resname not in ["GLY", "ALA"] and flex_sidechain:
             n_sidechain_atoms = len(template[1])
             all_indices = np.arange(len(structure.atom_labels))
             n_terms, c_terms = structure.get_terminal_res_atom_arr()
@@ -140,6 +143,8 @@ def create_side_chain_structure(inputs):
     assert len(sidechain_placeholders) > 0, "Energy functions have not yet initialized!"
     structure = deepcopy(sidechain_placeholders[0])
     assert structure.coords.shape[0] == backbone_coords.shape[0], "Input structures contain extra sidechain atoms or miss sidechain atoms if fix argument is used"
+    residue_ids = structure.residue_IDs
+    chain_ids = structure.residue_chains
     structure.coords = backbone_coords
     N_CA_C_coords = structure.get_sorted_minimal_backbone_coords()
     all_backbone_dihedrals = calc_torsion_angles(N_CA_C_coords)
@@ -150,7 +155,7 @@ def create_side_chain_structure(inputs):
     
     for idx, resname in enumerate(structure.residue_types):
         # if residue is to retain, skip building sidechain
-        if idx + structure.res_nums[0] in retain_idxs: continue
+        if chain_ids[idx] in retain_idxs and residue_ids[idx] in retain_idxs[chain_ids[idx]]: continue
         # copy coordinates from the previous growing step to the current placeholder
         previous_coords = structure_coords
         # structure = deepcopy(sidechain_placeholders[idx])
@@ -168,7 +173,11 @@ def create_side_chain_structure(inputs):
             continue
         energy_func = energy_calculators[idx + 1]
         # get all candidate conformations (rotamers) for this side chain
-        candidiate_conformations, candidate_probs = _rotamer_library.retrieve_torsion_and_prob(resname, all_phi[idx], all_psi[idx], _ptm_rotamer_lib)
+        try:
+            candidiate_conformations, candidate_probs = _rotamer_library.retrieve_torsion_and_prob(resname, all_phi[idx], all_psi[idx], _ptm_rotamer_lib)
+        except KeyError:
+            print("Backbone out of range for ptm rotamer library. End growth")
+            return None, False, None, None
         # perturb chi angles of the side chains by ~0.5 degrees
         candidiate_conformations += np.random.normal(scale=0.5, size=candidiate_conformations.shape)
         energies = []
@@ -204,7 +213,7 @@ def create_side_chain_structure(inputs):
         structure.write_PDB(save_addr)
     return structure, True, accumulated_energy, save_addr
 
-def create_side_chain(structure, n_trials, temperature, retain_resi=[], parallel_worker=16, return_first_valid=False):
+def create_side_chain(structure, n_trials, temperature, retain_resi={}, parallel_worker=16, return_first_valid=False):
     """
     Using the MCSCE workflow to add sidechains to a backbone-only PDB structure. The building process will be repeated for n_trial times, but only the lowest energy conformation will be returned 
 
@@ -281,7 +290,7 @@ def create_side_chain(structure, n_trials, temperature, retain_resi=[], parallel
             return conformations[lowest_energy_idx]
 
 
-def create_side_chain_ensemble(structure, n_conformations, temperature, save_path, retain_resi=[], parallel_worker=16):
+def create_side_chain_ensemble(structure, n_conformations, temperature, save_path, retain_resi={}, parallel_worker=16):
     """
     Create a given number of conformation ensemble for the backbone-only structure of a protein
 

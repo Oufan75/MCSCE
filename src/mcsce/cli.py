@@ -2,7 +2,7 @@ import argparse
 import os
 from datetime import datetime
 
-from numpy import mod, any, array
+import numpy as np
 from tqdm.std import tqdm
 
 from mcsce.libs.libstructure import Structure
@@ -17,7 +17,7 @@ parser.add_argument("-o", "--output_dir", default=None, help="The output positio
 parser.add_argument("-s", "--same_structure", action="store_true", default=False, help="When generating PDB files in a folder, whether each structure in the folder has the same amino acid sequence. When this is set to True, the energy function preparation will be done only once.")
 parser.add_argument("-b", "--batch_size", default=16, type=int, help="The batch size used for calculating energies for conformations. Consider decreasing batch size when encountered OOM in building.")
 parser.add_argument("-m", "--mode", choices=["ensemble", "simple", "exhaustive"], default="ensemble", help="This option controls whether a structural ensemble or just a single structure is created for every input structure. The default behavior is to create a structural ensemble. Simple/exhaustive modes are for creating single structure. In simple mode, n_conf structures are tried sequentially and the first valid structure is returned, and in exhaustive mode, a total number of n_conf structures will be created and the lowest energy conformation is returned.")
-parser.add_argument("-f", "--fix", default=None, help="list of residue ids whose side chains are retained. Specify start to stop (inclusive) with dash, and seperate id ranges with plus. E.g. 2-5+10-13. Only supports same structure mode and input structure should contain original side chains for residues to be fixed. Currently assumes continuous residue ids.")
+parser.add_argument("-f", "--fix", default=None, help="list of residue ids whose side chains are retained. Specify start to stop (inclusive) with dash, and seperate id ranges with plus. E.g. 2-5+10-13. If multiple chains are in PDB, this range is applied to the first chain. Otherwise specify chain IDs with format A:2-5+10-13 and seperate chains with ,. Only supports same structure mode and input structure should contain original side chains for residues to be fixed. Currently assumes continuous residue ids.")
 parser.add_argument("-l", "--logfile", default="log.csv", help="File name of the log file")
 parser.add_argument("-v", "--verbose", default=False, help="whether to print out warnings")
 
@@ -37,7 +37,37 @@ def maincli():
     """Independent client entry point."""
     cli(parser, main)
 
-def read_structure_and_check(file_name, retain_idx=[], verbose=False):
+def parse_fix_residue_ids(fix_string, chain_ids):
+    fix_chain_idxs = {}
+    fix_string = fix_string.strip()
+    
+    for c, fix in enumerate(fix_string.split(",")):
+        if ":" in fix:
+            chain_id = fix[0]
+            fix = fix[2:]
+        else:
+            chain_id = chain_ids[c]
+        if fix.find('-') == -1:
+            fix_chain_idxs[chain_id] = [int(n) for n in fix.split('+')]
+        else:
+            fix_chain_idxs[chain_id] = []
+            if fix.find('+') == -1:
+                fix_id_chunks = [fix]
+            else:
+                fix_id_chunks = fix.split('+')
+            for chunk in fix_id_chunks:
+                if chunk.find('-') == -1:
+                    fix_chain_idxs[chain_id] += [int(chunk)]
+                else:
+                    fix_range = [int(n) for n in chunk.split('-')]
+                    if len(fix_range) > 2:
+                        raise RuntimeError('--fix argument syntax error. Abort')
+                    start, stop = fix_range
+                    fix_chain_idxs[chain_id] += list(range(start, stop+1))
+    return fix_chain_idxs
+
+
+def read_structure_and_check(file_name, retain_idx={}, verbose=False):
     """
     Helper function for reading a structure from a given filename and returns the structure object
     checks whether there are missing atoms in the structure and 
@@ -114,49 +144,31 @@ def main(input_structure, n_conf, n_worker, output_dir, logfile, mode, fix, batc
         if not input_folder.endswith("/"):
             input_folder += "/"
         all_pdbs = [input_folder + f for f in os.listdir(input_folder) if f[-3:].upper() == "PDB"]
-    
-    fix_idxs = []
+    fix_chain_idxs = {} 
     if same_structure:
         # Assume all structures in a folder are the same: the energy creation step can be done only once
         s = Structure(all_pdbs[0])
         s.build()
-        #print(s.data_array.shape, s._data_array.shape) 
+        unique_chain_ids = np.unique(s.residue_chains)
         if fix is not None:
-            fix = fix.strip()
-            if fix.find('-') == -1:
-                fix_idxs = [int(n) for n in fix.split('+')]
-            else:
-                if fix.find('+') == -1:
-                    fix_id_chunks = [fix]
-                else:
-                    fix_id_chunks = fix.split('+')
-                for chunk in fix_id_chunks:
-                    if chunk.find('-') == -1:
-                        fix_idxs += [int(chunk)]
-                    else:
-                        fix_range = [int(n) for n in chunk.split('-')]
-                        if len(fix_range) > 2:
-                            print('--fix argument syntax error. Abort')
-                            return
-                        start, stop = fix_range
-                        fix_idxs += list(range(start, stop+1))
-            if any(array(fix_idxs) > s.res_nums[-1]):
-                print('--fix residue id out of range')
-                return
+            fix_chain_idxs = parse_fix_residue_ids(fix, unique_chain_ids)
+            if np.any(np.concatenate([v for k, v in fix_chain_idxs.items()]) > np.max(s.res_nums)):
+                raise IndexError('--fix residue id out of range')
+        
             # remove added sidechains in sections to be processed
-            s = s.remove_side_chains(fix_idxs)
-      
+            s = s.remove_side_chains(fix_chain_idxs)
+         
         initialize_func_calc(partial(prepare_energy_function, batch_size=batch_size,
-                   forcefield=ff_obj, terms=["lj", "clash", "coulomb"]),
-                   structure=s, retain_idxs=fix_idxs)
+                   forcefield=ff_obj, terms=["lj", "clash"]),
+                   structure=s, retain_idxs=fix_chain_idxs)
     if mode == "simple" and same_structure and n_worker > 1:
         # parallel executing sequential trials on the same structure (different conformations)
         t0 = datetime.now()
-        structures = [read_structure_and_check(f, fix_idxs, verbose) for f in all_pdbs]
+        structures = [read_structure_and_check(f, fix_chain_idxs, verbose) for f in all_pdbs]
         side_chain_parallel_creator = partial(create_side_chain, 
                                               n_trials=n_conf,
                                               temperature=300,
-                                              retain_resi=fix_idxs,
+                                              retain_resi=fix_chain_idxs,
                                               parallel_worker=1,
                                               return_first_valid=True)
         import multiprocessing
@@ -190,7 +202,7 @@ def main(input_structure, n_conf, n_worker, output_dir, logfile, mode, fix, batc
                 output_dir = base_dir + "/" + os.path.splitext(os.path.basename(f))[0] + "_mcsce"
             if not os.path.exists(output_dir) and mode == "ensemble":
                 os.makedirs(output_dir)
-            s = read_structure_and_check(f, fix_idxs, verbose=verbose)
+            s = read_structure_and_check(f, fix_chain_idxs, verbose=verbose)
             
 
             if not same_structure:
@@ -202,7 +214,7 @@ def main(input_structure, n_conf, n_worker, output_dir, logfile, mode, fix, batc
                     s,
                     n_conf,
                     temperature=300,
-                    retain_resi=fix_idxs,
+                    retain_resi=fix_chain_idxs,
                     save_path=output_dir,
                     parallel_worker=n_worker,
                     )
@@ -211,7 +223,7 @@ def main(input_structure, n_conf, n_worker, output_dir, logfile, mode, fix, batc
                     _log.write("%s,%d,%s\n" % (f, sum(success_indicator), str(datetime.now() - t0)))
             else:
                 best_structure = create_side_chain(s, n_conf, 300, parallel_worker=n_worker, 
-                                 retain_resi=fix_idxs, return_first_valid=(mode=="simple"))
+                                 retain_resi=fix_chain_idxs, return_first_valid=(mode=="simple"))
                 if best_structure is not None:
                     best_structure.write_PDB(output_dir + ".pdb")
                     with open(logfile, "a") as _log:
