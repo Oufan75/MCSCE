@@ -42,6 +42,8 @@ Hydroxylation
 
 - PRO: HYP
 
+Important: while MCSCE handles multiple chains, each residue should have unique residue ids; otherwise the energy function may have unexpected behaviors.
+
 v0.1.0
 
 References

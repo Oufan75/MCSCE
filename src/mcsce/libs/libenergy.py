@@ -326,7 +326,6 @@ def create_bonds_apart_mask_for_ij_pairs(
             for j in range(i + 1, len(current_residue_data["atom_order"])):
                 i_atom_name = current_residue_data["atom_order"][i]
                 j_atom_name = current_residue_data["atom_order"][j]
-              
                 if j_atom_name in bonds_intra[res_label][i_atom_name]:
                     # atoms i and j are connected
                     bonds_mask[calc_upper_diagonal_idx_ij(current_residue_data["atoms"][i_atom_name],

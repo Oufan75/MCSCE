@@ -10,7 +10,20 @@ import numpy as np
 from mcsce.libs.libcalc import calc_angle, calc_torsion_angles, rotate_coordinates_Q
 from mcsce.core.build_definitions import sidechain_templates
 
-
+# common atom template index
+N_idx = 0
+CA_idx = 1
+CBs_idx = 4 #CB, CB1, CB2
+CGs_idx = 5 #OG, CG, CG1, OG1, SG
+CDs_idx = 6 #SD, CD, CD1, ND1, OD1, CS, P 
+CEs_idx = 7 #CE, NE, CE1, CE2, OE11, OE1, NE1, O1P
+CZs_idx = 8 #CZ, NZ
+NH_idx = 9  #NH1, CH
+N_CA_CB_CG = [N_idx, CA_idx, CBs_idx, CGs_idx]
+CA_CB_CG_CD = [CA_idx, CBs_idx, CGs_idx, CDs_idx]
+CB_CG_CD_CE = [CBs_idx, CGs_idx, CDs_idx, CEs_idx]
+CG_CD_CE_CZ = [CGs_idx, CDs_idx, CEs_idx, CZs_idx]
+CD_CE_CZ_NH = [CDs_idx, CEs_idx, CZs_idx, NH_idx]
 
 
 
@@ -83,21 +96,6 @@ def rotate_sidechain(res_type, tors):
     template_structure, sidechain_idx = sidechain_templates[res_type]
     sidechain_label = template_structure.data_array[:, 2] # atom name column
     template = template_structure.coords
-        
-    # common atom template index
-    N_idx = 0
-    CA_idx = 1
-    CBs_idx = 4 #CB, CB1. CB2
-    CGs_idx = 5 #OG, CG, CG1, OG1, SG
-    CDs_idx = 6 #SD, CD, CD1, ND1, OD1, CS, P 
-    CEs_idx = 7 #CE, NE, CE1, CE2, OE11, OE1, NE1, O1P
-    CZs_idx = 8 #CZ, NZ
-    NH_idx = 9  #NH1, CH
-    N_CA_CB_CG = [N_idx, CA_idx, CBs_idx, CGs_idx]
-    CA_CB_CG_CD = [CA_idx, CBs_idx, CGs_idx, CDs_idx]
-    CB_CG_CD_CE = [CBs_idx, CGs_idx, CDs_idx, CEs_idx] 
-    CG_CD_CE_CZ = [CGs_idx, CDs_idx, CEs_idx, CZs_idx]
-    CD_CE_CZ_NH = [CDs_idx, CEs_idx, CZs_idx, NH_idx]
 
     # place CB at origin for rotation, exclude bb atoms and HA
     ori_chi1 = calc_torsion_angles(template[N_CA_CB_CG, :])[0]  # The original chi1 torsion angle value
@@ -197,7 +195,7 @@ def rotate_sidechain(res_type, tors):
     ori_chi5 = calc_torsion_angles(template[CD_CE_CZ_NH, :])[0]
     CZ = template[8]
     unit_vector = (CZ - CEs)/np.linalg.norm(CZ - CEs)
-    HEs = np.where(np.isin(sidechain_label, ['HE','HE1','HE2','HE3','CD']))[0] #AGM ALY 
+    HEs = np.where(np.isin(sidechain_label, ['HE','HE1','HE2','HE3']))[0] #AGM ALY 
     chi5_idx = np.delete(chi4_idx, np.where(np.isin(chi4_idx, HEs))[0])
     template[chi5_idx, :] = rotate_tor(ori_chi5, tors[4], unit_vector, 
                                              template[chi5_idx, :], CZ)

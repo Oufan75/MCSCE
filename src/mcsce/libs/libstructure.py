@@ -316,6 +316,12 @@ class Structure:
             resnum = str(resnum)
         self.filters.append(lambda x: x[col_resSeq] == resnum)
 
+    def add_filter_resnum_chain(self, resnum, chain):
+        """Add filters for residue number"""
+        if type(resnum) is not str:
+            resnum = str(resnum)
+        self.filters.append(lambda x: x[col_resSeq] == resnum and x[col_chainID] == chain)
+
     def get_PDB(self, pdb_filters=None, renumber=True):
         """
         Convert Structure to PDB format.
@@ -506,7 +512,7 @@ class Structure:
 
     def add_side_chain(self, res_idx, sidechain_template, chain_id='A'):
         template_structure, sc_atoms = sidechain_template
-        self.add_filter_resnum(res_idx)
+        self.add_filter_resnum_chain(res_idx, chain_id)
         N_CA_C_coords = self.get_sorted_minimal_backbone_coords(filtered=True)
         sc_all_atom_coords = place_sidechain_template(N_CA_C_coords, template_structure.coords)
         sidechain_data_arr = template_structure.data_array.copy()
