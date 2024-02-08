@@ -117,7 +117,7 @@ SimpleOpt1-5/
 # in development files
 src/mcsce/core/data/backup
 src/mcsce/submit.sh
-src/mcsce/slurm-*.out
+src/mcsce/slurm*.out
 src/mcsce/core/check_library.py
 src/mcsce/*.pdb
 src/mcsce/*_mcsce/

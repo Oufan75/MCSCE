@@ -443,7 +443,7 @@ def extract_ff_params_for_seq(
         # try/catch is here to avoid problems with His...
         # for this purpose we are only using side-chains
         except KeyError:
-            raise KeyError(tuple(force_field[res].keys()))
+            raise KeyError((res, atom_name)) #tuple(force_field[res].keys()))
         
         if param in ["class", "element", "mass", "epsilon", "sigma"]:
             # These are parameters for non-specific atom types
