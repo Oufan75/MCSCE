@@ -27,24 +27,28 @@ Phosphoralytion(unprotonated, protonated)
 - SER: SEP S1P 
 - THR: TPO T1P 
 - TYR: PTR Y1P 
-- HID: H2D H1D 
-- HIE: H2E H1E
+- HID: H2D H1D (opt from SIDEpro)
+- HIE: H2E H1E (opt from SIDEpro)
+
+Acetylation
+
+- LYS: ALY
 
 Methylation
 
 - LYS: M3L
 
-N6-carboxylysine
+N6-carboxylysine (opt from SIDEpro)
 
 - LYS: KCX
 
-Hydroxylation
+Hydroxylation (opt from SIDEpro)
 
 - PRO: HYP
 
 Important: while MCSCE handles multiple chains, each residue should have unique residue ids; otherwise the energy function may have unexpected behaviors.
 
-v0.1.0
+v0.1.2
 
 References
 ==========

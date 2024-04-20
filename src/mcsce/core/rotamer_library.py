@@ -203,10 +203,11 @@ class DunbrakRotamerLibrary:
 class ptmRotamerLib():
     """
     ptmlib_type: str choice in ["bid120", "sidepro", "bd30"]
+    by default uses bd30 (backbone dependent with 30 deg sep)
     data structure: {(restype, depended chi): [np.array<N, c>(N: number of rotamers, c: (probability, rotamer values, sigma values in degree)]}
     info structure: {(restype: [total chis, number of additional chis, dependence])}
     """
-    def __init__(self, ptmlib_type="bid120", probability_threshold=0.001, augment_with_std=False):
+    def __init__(self, ptmlib_type="bd30", probability_threshold=0.001, augment_with_std=True):
         self._data = {}
         self._info = {}
         self.ptmlib_type = ptmlib_type

@@ -335,6 +335,8 @@ def create_bonds_apart_mask_for_ij_pairs(
         # inter-residue connectivities
         if res_num + 1 in residue_data:
             for i_name in bonds_inter:
+                if i_name not in bonds_inter:
+                    print(i_name, res_num + 1)
                 for j_name in bonds_inter[i_name]:
                     if i_name in current_residue_data["atoms"] and j_name in residue_data[res_num + 1]["atoms"]:
                         bonds_mask[calc_upper_diagonal_idx_ij(current_residue_data["atoms"][i_name],
